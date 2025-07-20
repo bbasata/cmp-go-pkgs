@@ -38,23 +38,54 @@ end
 ---Checks whether the cursor is in the "import" section
 ---@return boolean
 M.check_if_inside_imports = function()
-	local cur_node = require("nvim-treesitter.ts_utils").get_node_at_cursor()
-	local is_in_string = false
+	vim.notify('check_if_inside_imports')
 
-	while cur_node do
-		local node_type = cur_node:type()
+	-- get_parser() defaults to current buffer
+	local parser = vim.treesitter.get_parser()
+	if parser == nil then
+		vim.notify('parser == nil')
+		return false
+	end
 
-		if node_type == "interpreted_string_literal" then
-			is_in_string = true
-		end
+	local tree = parser:parse()
+	if tree == nil then
+		vim.notify('tree == nil')
+		return false
+	end
+
+	local root_node = tree[1]:root()
+
+	-- nvim_win_get_cursor() returns a (row, col) tuple of type integer[]
+	local cursor = vim.api.nvim_win_get_cursor(0) -- 0 for current window
+
+	vim.notify(vim.inspect(cursor))
+
+	local smallest_node_at_cursor = root_node:descendant_for_range(
+		cursor[1] - 1 , cursor[2] - 1, cursor[1] - 1, cursor[2] - 1
+	)
+
+	-- local is_in_string = false
+	local is_in_string = true
+
+	---@type TSNode?
+	local visited_node = smallest_node_at_cursor
+	while visited_node do
+		local node_type = visited_node:type()
+
+		-- if node_type == "interpreted_string_literal" then
+		-- 	vim.notify('node_type == interpreted_string_literal')
+		-- 	is_in_string = true
+		-- end
 
 		if node_type == "import_declaration" then
+			vim.notify('node_type == import_declaration')
 			return is_in_string
 		end
 
-		cur_node = cur_node:parent()
+		visited_node = visited_node:parent()
 	end
 
+	vim.notify('check_if_inside_imports returning false')
 	return false
 end
 

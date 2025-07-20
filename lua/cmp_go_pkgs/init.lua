@@ -18,18 +18,23 @@ source.init_items = function(args)
 	local arguments = { { uri = uri } }
 
 	if client == nil then
+		vim.notify('lsp client == nil')
 		return
 	end
 
+	---@diagnostic disable-next-line: param-type-mismatch
 	client.request("workspace/executeCommand", {
 		command = "gopls.list_known_packages",
 		arguments = arguments,
+	---@diagnostic disable-next-line: param-type-mismatch
 	}, function(error, result, _)
 		if error ~= nil then
+			vim.notify('workspace/executeCommand error: '..error.message)
 			return
 		end
 
 		if result == nil then
+			vim.notify('workspace/executeCommand result == nil')
 			return
 		end
 
@@ -43,7 +48,10 @@ source.init_items = function(args)
 			})
 		end
 
+		vim.notify('init items found '..table.maxn(tmp)..' items')
+
 		items[bufnr] = tmp
+	---@diagnostic disable-next-line: param-type-mismatch
 	end, bufnr)
 end
 
