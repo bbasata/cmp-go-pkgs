@@ -18,7 +18,6 @@ source.init_items = function(args)
 	local arguments = { { uri = uri } }
 
 	if client == nil then
-		vim.notify('lsp client == nil')
 		return
 	end
 
@@ -48,8 +47,6 @@ source.init_items = function(args)
 			})
 		end
 
-		vim.notify('init items found '..table.maxn(tmp)..' items')
-
 		items[bufnr] = tmp
 	---@diagnostic disable-next-line: param-type-mismatch
 	end, bufnr)
@@ -64,7 +61,7 @@ source.complete = function(_, params, callback)
 	end
 
 	callback({
-		items = utils.filter_items_by_prefix(items[bufnr], params.context.cursor_before_line),
+		items = utils.fuzzy_filter(items[bufnr], params.context.cursor_before_line),
 		isIncomplete = false,
 	})
 end
@@ -78,3 +75,5 @@ source.get_keyword_pattern = function()
 end
 
 return source
+
+-- vim: ts=2 sw=2 sts=2
