@@ -21,7 +21,7 @@ source.init_items = function(args)
 		return
 	end
 
-	client.request("workspace/executeCommand", {
+	client:request("workspace/executeCommand", {
 		command = "gopls.list_known_packages",
 		arguments = arguments,
 	}, function(error, result, _)
